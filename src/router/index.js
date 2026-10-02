@@ -11,17 +11,21 @@ const adminAuthGuard = (to, from, next) => {
     withCredentials: true
   }).then(res => {
     const data = res.data || {}
+    store.commit('setAuthSession', data)
 
-    // 不需要管理端认证，直接放行
-    if (!data.adminRequired) {
-      store.commit('beginAdminAccess', { required: false, fresh: !['dashboard', 'systemConfig', 'customerConfig'].includes(from.name) })
+    if (data.valid && data.authType === 'admin') {
+      store.commit('beginAdminAccess', { required: !!data.adminRequired, fresh: false })
       store.commit('setAdminLoggedIn', true)
       return next()
     }
 
-    // 需要认证，检查是否有有效的 admin session
-    if (data.valid && data.authType === 'admin') {
-      store.commit('beginAdminAccess', { required: true, fresh: false })
+    if (data.valid && data.authType === 'user') {
+      return next({ name: 'home' })
+    }
+
+    // 未配置管理端认证时，未登录访客可进入管理页
+    if (!data.adminRequired) {
+      store.commit('beginAdminAccess', { required: false, fresh: !['dashboard', 'systemConfig', 'customerConfig'].includes(from.name) })
       store.commit('setAdminLoggedIn', true)
       return next()
     }
@@ -30,6 +34,7 @@ const adminAuthGuard = (to, from, next) => {
     // 只有之前已登录（session 过期）才提示错误，首次未登录静默跳转
     const wasLoggedIn = store.state.adminLoggedIn
     store.commit('setAdminLoggedIn', false)
+    store.commit('clearAuthSession')
     if (to.name !== 'adminLogin') {
       if (wasLoggedIn) {
         ElMessage.error(i18n.global.t('login.authRequired'))
@@ -41,6 +46,7 @@ const adminAuthGuard = (to, from, next) => {
   }).catch(() => {
     const wasLoggedIn = store.state.adminLoggedIn
     store.commit('setAdminLoggedIn', false)
+    store.commit('clearAuthSession')
     if (to.name !== 'adminLogin') {
       if (wasLoggedIn) {
         ElMessage.error(i18n.global.t('login.authRequired'))
@@ -58,6 +64,7 @@ const userAuthGuard = (to, from, next) => {
     withCredentials: true
   }).then(res => {
     const data = res.data || {}
+    store.commit('setAuthSession', data)
 
     // 不需要用户端认证，直接放行
     if (!data.userRequired) {
@@ -75,6 +82,7 @@ const userAuthGuard = (to, from, next) => {
     // 只有之前已登录（session 过期）才提示错误，首次未登录静默跳转
     const wasLoggedIn = store.state.userLoggedIn
     store.commit('setUserLoggedIn', false)
+    store.commit('clearAuthSession')
     if (to.name !== 'login') {
       if (wasLoggedIn) {
         ElMessage.error(i18n.global.t('login.authRequired'))
@@ -86,11 +94,76 @@ const userAuthGuard = (to, from, next) => {
   }).catch(() => {
     const wasLoggedIn = store.state.userLoggedIn
     store.commit('setUserLoggedIn', false)
+    store.commit('clearAuthSession')
     if (to.name !== 'login') {
       if (wasLoggedIn) {
         ElMessage.error(i18n.global.t('login.authRequired'))
       }
       next({ name: 'login' })
+    } else {
+      next()
+    }
+  })
+}
+
+// 图库页：管理员或拥有 list 权限的用户
+const dashboardAuthGuard = (to, from, next) => {
+  axios.get('/api/auth/sessionCheck', {
+    withCredentials: true
+  }).then(res => {
+    const data = res.data || {}
+    store.commit('setAuthSession', data)
+
+    if (data.valid && data.authType === 'admin') {
+      store.commit('beginAdminAccess', { required: !!data.adminRequired, fresh: false })
+      store.commit('setAdminLoggedIn', true)
+      store.commit('setUserLoggedIn', true)
+      return next()
+    }
+
+    if (data.valid && data.authType === 'user' && Array.isArray(data.permissions) && data.permissions.includes('list')) {
+      store.commit('setAdminLoggedIn', false)
+      store.commit('setUserLoggedIn', true)
+      return next()
+    }
+
+    if (data.valid && data.authType === 'user') {
+      ElMessage.error(i18n.global.t('login.noListPermission'))
+      return next({ name: 'home' })
+    }
+
+    if (!data.adminRequired) {
+      store.commit('beginAdminAccess', { required: false, fresh: from.name !== 'dashboard' })
+      store.commit('setAdminLoggedIn', true)
+      return next()
+    }
+
+    const wasAdmin = store.state.adminLoggedIn
+    const wasUser = store.state.userLoggedIn
+    store.commit('setAdminLoggedIn', false)
+    if (wasUser && !wasAdmin) {
+      store.commit('setUserLoggedIn', false)
+      if (wasUser) {
+        ElMessage.error(i18n.global.t('login.authRequired'))
+      }
+      return next({ name: 'login' })
+    }
+    if (to.name !== 'adminLogin') {
+      if (wasAdmin) {
+        ElMessage.error(i18n.global.t('login.authRequired'))
+      }
+      next({ name: 'adminLogin' })
+    } else {
+      next()
+    }
+  }).catch(() => {
+    const wasAdmin = store.state.adminLoggedIn
+    store.commit('setAdminLoggedIn', false)
+    if (to.name !== 'adminLogin') {
+      if (wasAdmin) {
+        ElMessage.error(i18n.global.t('login.authRequired'))
+      }
+      next({ name: 'adminLogin' })
     } else {
       next()
     }
@@ -113,7 +186,7 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('../views/AdminDashBoard.vue'),
-    beforeEnter: adminAuthGuard
+    beforeEnter: dashboardAuthGuard
   },
   {
     path: '/customerConfig',

@@ -78,15 +78,18 @@ export default {
             this.reservedSpace = `${header.offsetTop + header.offsetHeight + 12}px`;
         },
         handleLogout() {
+            const isAdmin = this.$store.getters.isAdminView;
             const url = process.env.NODE_ENV === 'production' ? '/api/auth/logout' : '/api/api/auth/logout';
             fetch(url, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ authType: 'admin' })
+                body: JSON.stringify({ authType: isAdmin ? 'admin' : 'user' })
             }).finally(() => {
                 this.$store.commit('setAdminLoggedIn', false);
-                this.$router.push('/adminLogin');
+                this.$store.commit('setUserLoggedIn', false);
+                this.$store.commit('clearAuthSession');
+                this.$router.push(isAdmin ? '/adminLogin' : '/login');
             });
         }
     },

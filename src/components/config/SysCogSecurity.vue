@@ -4,8 +4,9 @@
         <div class="first-settings">
             <h3 class="first-title">{{ $t('sysSecurity.authManagement') }}</h3>
 
-            <h4 class="second-title">{{ $t('sysSecurity.userAuth') }}</h4>
+            <h4 class="second-title" v-if="!accountAuthEnabled">{{ $t('sysSecurity.userAuth') }}</h4>
             <el-form 
+                v-if="!accountAuthEnabled"
                 :model="authSettings.user" 
                 :disabled="saving"
                 :rules = "userPassRules"
@@ -494,6 +495,7 @@ data() {
         showAdminPassConfirm: false, // 显示管理密码确认框
         clearUserPassword: false, // 清除用户密码开关
         clearAdminPassword: false, // 清除管理密码开关
+        accountAuthEnabled: false,
 
         // Token对话框相关
         showCreateTokenDialog: false,
@@ -936,11 +938,13 @@ methods: {
         let validationPromises = [];
 
         // 验证用户密码表单
-        validationPromises.push(new Promise((resolve) => {
-            this.$refs.userPassForm.validate((valid) => {
-                resolve(valid);
-            });
-        }));
+        if (!this.accountAuthEnabled && this.$refs.userPassForm) {
+            validationPromises.push(new Promise((resolve) => {
+                this.$refs.userPassForm.validate((valid) => {
+                    resolve(valid);
+                });
+            }));
+        }
 
         // 验证管理密码表单
         validationPromises.push(new Promise((resolve) => {
@@ -989,9 +993,9 @@ methods: {
             // 不保存确认密码相关字段
             delete settings.auth.user.confirmNewUserPassword;
             delete settings.auth.admin.confirmNewAdminPassword;
-
-            // 标记清除密码
-            if (this.clearUserPassword) {
+            if (this.accountAuthEnabled) {
+                delete settings.auth.user;
+            } else if (this.clearUserPassword) {
                 settings.auth.user._clear = true;
                 settings.auth.user.authCode = '';
             }
@@ -1024,16 +1028,18 @@ methods: {
 
                 this.$message.success(this.$t('sysSecurity.settingsSaved'));
                 // 保存成功后重置密码字段为空（后端已处理）
-                this.authSettings.user.authCode = '';
+                if (this.authSettings.user) {
+                    this.authSettings.user.authCode = '';
+                    this.authSettings.user.confirmNewUserPassword = '';
+                }
                 this.authSettings.admin.adminPassword = '';
-                this.authSettings.user.confirmNewUserPassword = '';
                 this.authSettings.admin.confirmNewAdminPassword = '';
                 this.oriUserPassword = '';
                 this.oriAdminPassword = '';
                 // 标记已有密码（如果用户刚设置了密码，且不是清除操作）
-                if (settings.auth.user.authCode && !settings.auth.user._clear) {
+                if (!this.accountAuthEnabled && settings.auth.user?.authCode && !settings.auth.user._clear) {
                     this.authSettings.user._hasPassword = true;
-                } else if (settings.auth.user._clear) {
+                } else if (!this.accountAuthEnabled && settings.auth.user?._clear) {
                     this.authSettings.user._hasPassword = false;
                 }
                 if (settings.auth.admin.adminPassword && !settings.auth.admin._clear) {
@@ -1061,6 +1067,7 @@ mounted() {
     .then((response) => response.json())
     .then(async (data) => {
         this.authSettings = data.auth;
+        this.accountAuthEnabled = !!(data.accountAuth || data.auth?.user?.disabled);
         this.uploadSettings = this.normalizeIpQuerySettings(data.upload);
         this.accessSettings = {
             imageTransformEnabled: false,

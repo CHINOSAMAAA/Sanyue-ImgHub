@@ -9,12 +9,13 @@
     "adminPasswordPlaceholder": "请输入密码",
     "submit": "登录",
     "success": "登录成功",
-    "failed": "登录失败，请检查密码是否正确",
+    "failed": "登录失败，请检查用户名或密码是否正确",
     "adminFailed": "用户名或密码错误",
     "serverError": "服务器错误",
     "systemError": "系统错误",
     "authRequired": "请先认证！",
-    "authFailed": "认证失败！"
+    "authFailed": "认证失败！",
+    "noListPermission": "当前账号没有图库查看权限"
   },
   "upload": {
     "folderPlaceholder": "上传目录",
@@ -259,6 +260,7 @@
     "imageDimensions": "图片尺寸",
     "noDimensions": "无",
     "uploadTimeLabel": "上传时间",
+    "uploader": "上传者",
     "channelTypeAndName": "渠道类型/名称",
     "accessStatusAndReview": "访问状态/审查",
     "uploadIP": "上传IP",
@@ -304,7 +306,8 @@
     "channelType": "渠道类型",
     "externalLink": "外链",
     "channelName": "渠道名称",
-    "clearFilters": "清除筛选"
+    "clearFilters": "清除筛选",
+    "uploader": "上传者"
   }
 ,
   "moveFile": {
@@ -395,6 +398,7 @@
   "sysConfigTabs": {
     "systemStatus": "系统状态",
     "uploadSettings": "上传设置",
+    "userAccounts": "用户账号",
     "securitySettings": "安全设置",
     "pageSettings": "网页设置",
     "otherSettings": "其他设置"
@@ -712,6 +716,36 @@
     "adminSessionMaxAge": "管理端会话有效期",
     "sessionMaxAgeUnit": "天",
     "sessionMaxAgeInvalid": "会话有效期必须为 1-3650 的正整数"
+  },
+  "sysUsers": {
+    "title": "用户账号",
+    "hint": "为用户端创建独立账号。创建后，统一上传密码将停用，用户需使用自己的用户名和密码登录、上传并管理自己的图片。",
+    "username": "用户名",
+    "displayName": "显示名称",
+    "password": "密码",
+    "passwordKeep": "留空则不修改密码",
+    "permissions": "权限",
+    "status": "状态",
+    "enabled": "启用",
+    "disabled": "禁用",
+    "operation": "操作",
+    "edit": "编辑",
+    "delete": "删除",
+    "createTitle": "新建用户",
+    "editTitle": "编辑用户",
+    "save": "保存",
+    "cancel": "取消",
+    "usernameRequired": "请输入用户名",
+    "usernameRule": "用户名须为 3-32 位字母、数字、点、下划线或短横线",
+    "passwordRequired": "请输入密码",
+    "passwordRule": "密码至少 4 位",
+    "loadFailed": "加载用户列表失败",
+    "saveFailed": "保存失败",
+    "createSuccess": "用户已创建",
+    "updateSuccess": "用户已更新",
+    "deleteConfirm": "确定删除用户 {name}？该用户的会话会立即失效。",
+    "deleteSuccess": "用户已删除",
+    "deleteFailed": "删除失败"
   }
 ,
   "sysPage": {

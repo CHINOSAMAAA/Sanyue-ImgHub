@@ -18,9 +18,13 @@ export default async function fetchWithAuth(url, options = {}) {
 
     if (response.status === 401 && !isRedirecting) {
         isRedirecting = true;
-        store.commit('setAdminLoggedIn', false);
-        // 静默跳转登录页，不弹出错误提示（路由守卫负责认证 UX）
-        router.push('/adminLogin').finally(() => {
+        const isAdminView = store.getters.isAdminView;
+        if (isAdminView) {
+            store.commit('setAdminLoggedIn', false);
+        }
+        store.commit('setUserLoggedIn', false);
+        const target = isAdminView ? '/adminLogin' : '/login';
+        router.push(target).finally(() => {
             isRedirecting = false;
         });
     }

@@ -95,6 +95,20 @@
                         </el-checkbox-group>
                     </div>
                 </div>
+                <!-- 上传者 -->
+                <div class="filter-section" v-if="showUploaderFilter && uploaderOptions.length > 0">
+                    <div class="filter-title">{{ $t('filter.uploader') }}</div>
+                    <div class="filter-options">
+                        <el-checkbox-group v-model="localFilters.uploadedBy" @change="handleFilterChange('uploadedBy')">
+                            <el-checkbox
+                                v-for="option in uploaderOptions"
+                                :key="'uploadedBy-' + option.value"
+                                :label="option.value">
+                                {{ option.label }}
+                            </el-checkbox>
+                        </el-checkbox-group>
+                    </div>
+                </div>
                 <!-- 清除筛选按钮 -->
                 <div class="filter-actions">
                     <el-button size="small" @click="clearFilters" :disabled="activeFilterCount === 0">{{ $t('filter.clearFilters') }}</el-button>
@@ -116,10 +130,19 @@ export default {
                 label: [],
                 fileType: [],
                 channel: [],
-                channelName: []
+                channelName: [],
+                uploadedBy: []
             })
         },
         channelNameOptions: {
+            type: Array,
+            default: () => []
+        },
+        showUploaderFilter: {
+            type: Boolean,
+            default: false
+        },
+        uploaderOptions: {
             type: Array,
             default: () => []
         }
@@ -133,7 +156,8 @@ export default {
                 label: [],
                 fileType: [],
                 channel: [],
-                channelName: []
+                channelName: [],
+                uploadedBy: []
             }
         };
     },
@@ -212,7 +236,8 @@ export default {
                     label: Array.isArray(newFilters.label) ? [...newFilters.label] : [],
                     fileType: Array.isArray(newFilters.fileType) ? [...newFilters.fileType] : [],
                     channel: Array.isArray(newFilters.channel) ? [...newFilters.channel] : [],
-                    channelName: Array.isArray(newFilters.channelName) ? [...newFilters.channelName] : []
+                    channelName: Array.isArray(newFilters.channelName) ? [...newFilters.channelName] : [],
+                    uploadedBy: Array.isArray(newFilters.uploadedBy) ? [...newFilters.uploadedBy] : []
                 };
             },
             immediate: true,
@@ -231,7 +256,8 @@ export default {
                 label: [],
                 fileType: [],
                 channel: [],
-                channelName: []
+                channelName: [],
+                uploadedBy: []
             };
             this.$emit('update:filters', { ...this.localFilters });
             this.$emit('change', { type: 'clear', filters: { ...this.localFilters } });

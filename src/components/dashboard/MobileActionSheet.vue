@@ -22,11 +22,11 @@
                                 <font-awesome-icon icon="download" class="bottom-sheet-icon"></font-awesome-icon>
                                 <span>{{ $t('mobileAction.downloadFile') }}</span>
                             </div>
-                            <div class="bottom-sheet-item" @click="handleAction('move')">
+                            <div class="bottom-sheet-item" v-if="canManage" @click="handleAction('move')">
                                 <font-awesome-icon icon="file-export" class="bottom-sheet-icon"></font-awesome-icon>
                                 <span>{{ $t('mobileAction.moveFile') }}</span>
                             </div>
-                            <div class="bottom-sheet-item" @click="handleAction('tag')">
+                            <div class="bottom-sheet-item" v-if="canManage" @click="handleAction('tag')">
                                 <font-awesome-icon icon="tags" class="bottom-sheet-icon"></font-awesome-icon>
                                 <span>{{ $t('mobileAction.tagManagement') }}</span>
                             </div>
@@ -37,13 +37,13 @@
                                 <font-awesome-icon icon="copy" class="bottom-sheet-icon"></font-awesome-icon>
                                 <span>{{ $t('mobileAction.copyLink') }}</span>
                             </div>
-                            <div class="bottom-sheet-item" @click="handleAction('move')">
+                            <div class="bottom-sheet-item" v-if="canManage" @click="handleAction('move')">
                                 <font-awesome-icon icon="file-export" class="bottom-sheet-icon"></font-awesome-icon>
                                 <span>{{ $t('mobileAction.moveFolder') }}</span>
                             </div>
                         </template>
                         <!-- 删除操作 -->
-                        <div class="bottom-sheet-item bottom-sheet-danger" @click="handleAction('delete')">
+                        <div class="bottom-sheet-item bottom-sheet-danger" v-if="canDelete" @click="handleAction('delete')">
                             <font-awesome-icon icon="trash-alt" class="bottom-sheet-icon"></font-awesome-icon>
                             <span>{{ isFolder ? $t('mobileAction.deleteFolder') : $t('mobileAction.deleteFile') }}</span>
                         </div>
@@ -55,6 +55,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'MobileActionSheet',
     props: {
@@ -63,6 +65,15 @@ export default {
         isFolder: { type: Boolean, default: false }
     },
     emits: ['update:modelValue', 'action'],
+    computed: {
+        ...mapGetters(['hasPermission']),
+        canDelete() {
+            return this.hasPermission('delete');
+        },
+        canManage() {
+            return this.hasPermission('manage');
+        },
+    },
     methods: {
         close() {
             this.$emit('update:modelValue', false);

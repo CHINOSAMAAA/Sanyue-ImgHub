@@ -83,7 +83,7 @@
                         <font-awesome-icon icon="download"/>
                     </button>
                 </el-tooltip>
-                <el-tooltip :content="$t('dashboard.moveFile')" placement="top" :show-after="1000">
+                <el-tooltip v-if="canManage" :content="$t('dashboard.moveFile')" placement="top" :show-after="1000">
                     <button class="list-action-btn" @click.stop="$emit('move')">
                         <font-awesome-icon icon="file-export"/>
                     </button>
@@ -95,13 +95,13 @@
                         <font-awesome-icon icon="copy"/>
                     </button>
                 </el-tooltip>
-                <el-tooltip :content="$t('dashboard.moveFile')" placement="top" :show-after="1000">
+                <el-tooltip v-if="canManage" :content="$t('dashboard.moveFile')" placement="top" :show-after="1000">
                     <button class="list-action-btn" @click.stop="$emit('move')">
                         <font-awesome-icon icon="file-export"/>
                     </button>
                 </el-tooltip>
             </template>
-            <el-tooltip :content="$t('dashboard.delete')" placement="top" :show-after="1000">
+            <el-tooltip v-if="canDelete" :content="$t('dashboard.delete')" placement="top" :show-after="1000">
                 <button class="list-action-btn list-action-danger" @click.stop="$emit('delete')">
                     <font-awesome-icon icon="trash-alt"/>
                 </button>
@@ -111,6 +111,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'FileListItem',
     props: {
@@ -126,6 +128,13 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['hasPermission']),
+        canDelete() {
+            return this.hasPermission('delete');
+        },
+        canManage() {
+            return this.hasPermission('manage');
+        },
         isFolder() {
             // 检查 isFolder 属性或名称以 / 结尾
             return this.item.isFolder || this.item.name?.endsWith('/');

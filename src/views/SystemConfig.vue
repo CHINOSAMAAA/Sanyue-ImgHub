@@ -18,6 +18,7 @@ import SysCogSecurity from '@/components/config/SysCogSecurity.vue';
 import SysCogPage from '@/components/config/SysCogPage.vue';
 import SysCogOthers from '@/components/config/SysCogOthers.vue';
 import SysCogAI from '@/components/config/SysCogAI.vue';
+import SysCogUsers from '@/components/config/SysCogUsers.vue';
 import backgroundManager from '@/mixins/backgroundManager';
 
 export default {
@@ -51,7 +52,8 @@ export default {
         SysCogSecurity,
         SysCogPage,
         SysCogOthers,
-        SysCogAI
+        SysCogAI,
+        SysCogUsers
     },
     computed: {
         // 根据锚点动态返回对应的组件
@@ -64,6 +66,8 @@ export default {
                     return SysCogUpload;
                 case 'security':
                     return SysCogSecurity;
+                case 'users':
+                    return SysCogUsers;
                 case 'page':
                     return SysCogPage;
                 case 'others':

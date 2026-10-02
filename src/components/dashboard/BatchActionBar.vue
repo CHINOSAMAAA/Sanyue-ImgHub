@@ -18,7 +18,7 @@
       <span class="batch-toolbar-divider"></span>
       <div class="batch-floating-actions">
         <el-tooltip
-          v-for="action in actions"
+          v-for="action in visibleActions"
           :key="action.command"
           :disabled="disableTooltip"
           :content="$t(action.label)"
@@ -46,6 +46,18 @@ export default {
     selectedCount: {
       type: Number,
       required: true
+    },
+    isAdmin: {
+      type: Boolean,
+      default: true
+    },
+    canDelete: {
+      type: Boolean,
+      default: true
+    },
+    canManage: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['action', 'clear'],
@@ -54,17 +66,25 @@ export default {
       actions: [
         { command: 'copy', label: 'dashboard.copy', icon: 'copy', className: 'copy' },
         { command: 'download', label: 'dashboard.download', icon: 'download', className: 'download' },
-        { command: 'move', label: 'dashboard.move', icon: 'file-export', className: 'move' },
-        { command: 'tagManagement', label: 'dashboard.tagManagement', icon: 'tags', className: 'tag' },
-        { command: 'ban', label: 'dashboard.addToBlacklist', icon: 'ban', className: 'ban' },
-        { command: 'white', label: 'dashboard.addToWhitelist', icon: 'shield-alt', className: 'white' },
-        { command: 'delete', label: 'dashboard.delete', icon: 'trash-alt', className: 'danger' }
+        { command: 'move', label: 'dashboard.move', icon: 'file-export', className: 'move', requireManage: true },
+        { command: 'tagManagement', label: 'dashboard.tagManagement', icon: 'tags', className: 'tag', requireManage: true },
+        { command: 'ban', label: 'dashboard.addToBlacklist', icon: 'ban', className: 'ban', requireAdmin: true },
+        { command: 'white', label: 'dashboard.addToWhitelist', icon: 'shield-alt', className: 'white', requireAdmin: true },
+        { command: 'delete', label: 'dashboard.delete', icon: 'trash-alt', className: 'danger', requireDelete: true }
       ]
     }
   },
   computed: {
     disableTooltip() {
       return window.innerWidth < 768
+    },
+    visibleActions() {
+      return this.actions.filter(action => {
+        if (action.requireAdmin && !this.isAdmin) return false
+        if (action.requireDelete && !this.canDelete) return false
+        if (action.requireManage && !this.canManage) return false
+        return true
+      })
     }
   },
   methods: {

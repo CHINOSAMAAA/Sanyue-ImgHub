@@ -14,6 +14,8 @@
                         <FilterDropdown
                             v-model:filters="filters"
                             :channelNameOptions="channelNameOptions"
+                            :showUploaderFilter="isAdminView"
+                            :uploaderOptions="uploaderOptions"
                             @change="handleFilterChange"
                         />
                     </div>
@@ -316,6 +318,9 @@
         </el-container>
         <BatchActionBar
             :selected-count="selectedFiles.length"
+            :is-admin="isAdminView"
+            :can-delete="hasPermission('delete')"
+            :can-manage="hasPermission('manage')"
             @action="handleBatchAction"
             @clear="clearSelection"
         />
@@ -325,6 +330,9 @@
             :file="detailFile"
             :fileLink="getFileLink(detailFile?.name)"
             :urls="allUrl"
+            :is-admin="isAdminView"
+            :can-delete="hasPermission('delete')"
+            :can-manage="hasPermission('manage')"
             @download="handleDownload(detailFile?.name)"
             @tagManagement="handleTagManagement(detailFile?.name)"
             @block="handleBlock(detailFile?.name)"
@@ -518,9 +526,11 @@ data() {
             label: [],         // 审查结果: 'normal', 'teen', 'adult'
             fileType: [],      // 文件类型: 'image', 'video', 'audio', 'other'
             channel: [],       // 渠道类型: 'TelegramNew', 'CloudflareR2', 'S3', 'Discord', 'HuggingFace', 'WebDAV', 'External'
-            channelName: []    // 渠道名称: 动态获取
+            channelName: [],    // 渠道名称: 动态获取
+            uploadedBy: []
         },
         channelNameOptions: [], // 动态从文件列表中提取
+        uploaderOptions: [],
         // 移动文件对话框相关状态
         showMoveDialog: false, // 移动文件对话框
         moveTargetPath: '/', // 移动目标路径
@@ -575,7 +585,7 @@ setup() {
 },
 computed: {
     tagFileMetadata() { return this.tableData.find(file => file.name === this.currentTagFile)?.metadata || {}; },
-    ...mapGetters(['adminUrlSettings', 'userConfig']),
+    ...mapGetters(['adminUrlSettings', 'userConfig', 'isAdminView', 'hasPermission']),
     filteredTableData() {
         return this.tableData;
     },
@@ -932,11 +942,13 @@ methods: {
     // 清除所有筛选条件
     clearFilters() {
         this.filters = {
+            accessStatus: [],
             listType: [],
             label: [],
             fileType: [],
             channel: [],
-            channelName: []
+            channelName: [],
+            uploadedBy: []
         };
         this.currentPage = 1;
         this.refreshFileList();
@@ -991,6 +1003,25 @@ methods: {
             }
         } catch (error) {
             console.error('Failed to fetch channel names:', error);
+        }
+    },
+    async loadUploaders() {
+        if (!this.isAdminView) {
+            this.uploaderOptions = [];
+            return;
+        }
+        try {
+            const response = await fetchWithAuth('/api/manage/users');
+            if (!response.ok) return;
+            const data = await response.json();
+            this.uploaderOptions = (data.users || []).map(user => ({
+                value: user.username,
+                label: user.displayName && user.displayName !== user.username
+                    ? `${user.displayName} (${user.username})`
+                    : user.username,
+            }));
+        } catch (error) {
+            console.error('Failed to fetch uploaders:', error);
         }
     },
     handleDownload(key) {
@@ -2144,7 +2175,7 @@ mounted() {
     this.refreshFileList()
         .then(() => {
             // 获取所有渠道名称
-            return this.extractChannelNames();
+            return Promise.all([this.extractChannelNames(), this.loadUploaders()]);
         })
         .catch((err) => {
             if (err.message !== 'Unauthorized') {

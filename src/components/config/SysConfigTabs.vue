@@ -44,6 +44,7 @@ data() {
         menuItems: [
             { index: 'status', icon: 'chart-bar', titleKey: 'sysConfigTabs.systemStatus' },
             { index: 'upload', icon: 'cloud-upload', titleKey: 'sysConfigTabs.uploadSettings' },
+            { index: 'users', icon: 'users', titleKey: 'sysConfigTabs.userAccounts' },
             { index: 'security', icon: 'shield', titleKey: 'sysConfigTabs.securitySettings' },
             { index: 'page', icon: 'pager', titleKey: 'sysConfigTabs.pageSettings' },
             { index: 'ai', titleKey: 'sysAI.title' },

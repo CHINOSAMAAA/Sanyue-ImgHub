@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'DashboardTabs',
     props: {
@@ -68,13 +70,19 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['isAdminView']),
         pageOptions() {
-            return [
+            const options = [
                 { name: 'dashboard', icon: 'images', label: 'dashboardTabs.fileManagement' },
-                { name: 'customerConfig', icon: 'user-cog', label: 'dashboardTabs.userManagement' },
-                { name: 'systemConfig', icon: 'cogs', label: 'dashboardTabs.systemSettings' },
-                { name: '', icon: 'upload', label: 'dashboardTabs.fileUpload' }
             ];
+            if (this.isAdminView) {
+                options.push(
+                    { name: 'customerConfig', icon: 'user-cog', label: 'dashboardTabs.userManagement' },
+                    { name: 'systemConfig', icon: 'cogs', label: 'dashboardTabs.systemSettings' }
+                );
+            }
+            options.push({ name: '', icon: 'upload', label: 'dashboardTabs.fileUpload' });
+            return options;
         },
         activePageOption() {
             return this.pageOptions.find(option => option.name === this.activeTab) || this.pageOptions[0];

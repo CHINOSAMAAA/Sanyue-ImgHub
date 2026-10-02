@@ -9,12 +9,13 @@
     "adminPasswordPlaceholder": "Enter password",
     "submit": "Login",
     "success": "Login successful",
-    "failed": "Login failed, please check your password",
+    "failed": "Login failed, please check your username or password",
     "adminFailed": "Invalid username or password",
     "serverError": "Server error",
     "systemError": "System error",
     "authRequired": "Please authenticate first!",
-    "authFailed": "Authentication failed!"
+    "authFailed": "Authentication failed!",
+    "noListPermission": "This account cannot access the gallery"
   },
   "upload": {
     "folderPlaceholder": "Upload directory",
@@ -256,6 +257,7 @@
     "imageDimensions": "Dimensions",
     "noDimensions": "N/A",
     "uploadTimeLabel": "Upload Time",
+    "uploader": "Uploader",
     "channelTypeAndName": "Channel Type/Name",
     "accessStatusAndReview": "Access Status/Review",
     "uploadIP": "Upload IP",
@@ -301,7 +303,8 @@
     "channelType": "Channel Type",
     "externalLink": "External Link",
     "channelName": "Channel Name",
-    "clearFilters": "Clear Filters"
+    "clearFilters": "Clear Filters",
+    "uploader": "Uploader"
   },
   "moveFile": {
     "title": "Move File",
@@ -390,6 +393,7 @@
   "sysConfigTabs": {
     "systemStatus": "System Status",
     "uploadSettings": "Upload Settings",
+    "userAccounts": "User Accounts",
     "securitySettings": "Security Settings",
     "pageSettings": "Page Settings",
     "otherSettings": "Other Settings"
@@ -706,6 +710,36 @@
     "adminSessionMaxAge": "Admin Session Max Age",
     "sessionMaxAgeUnit": "days",
     "sessionMaxAgeInvalid": "Session max age must be an integer from 1 to 3650"
+  },
+  "sysUsers": {
+    "title": "User Accounts",
+    "hint": "Create per-user accounts for the upload site. After the first account is created, the shared upload password is disabled. Users sign in with their own credentials and can only manage their own files.",
+    "username": "Username",
+    "displayName": "Display name",
+    "password": "Password",
+    "passwordKeep": "Leave blank to keep the current password",
+    "permissions": "Permissions",
+    "status": "Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "operation": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "createTitle": "New user",
+    "editTitle": "Edit user",
+    "save": "Save",
+    "cancel": "Cancel",
+    "usernameRequired": "Username is required",
+    "usernameRule": "Username must be 3-32 characters: letters, numbers, dots, underscores or hyphens",
+    "passwordRequired": "Password is required",
+    "passwordRule": "Password must be at least 4 characters",
+    "loadFailed": "Failed to load users",
+    "saveFailed": "Failed to save user",
+    "createSuccess": "User created",
+    "updateSuccess": "User updated",
+    "deleteConfirm": "Delete user {name}? Their sessions will be revoked immediately.",
+    "deleteSuccess": "User deleted",
+    "deleteFailed": "Failed to delete user"
   },
   "sysPage": {
     "settingsSaved": "Settings saved",

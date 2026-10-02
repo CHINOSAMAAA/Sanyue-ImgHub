@@ -525,6 +525,7 @@ export default {
         handleLogout() {
             axios.post('/api/auth/logout', { authType: 'user' }, { withCredentials: true }).finally(() => {
                 this.$store.commit('setUserLoggedIn', false);
+                this.$store.commit('clearAuthSession');
                 this.$router.push('/login')
                 this.$message.success(this.$t('upload.logoutSuccess'))
             })

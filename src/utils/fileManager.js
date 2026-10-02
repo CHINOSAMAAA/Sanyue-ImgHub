@@ -204,6 +204,9 @@ class FileManager {
         if (filters.channelName && filters.channelName.length > 0) {
             params += `&channelName=${encodeURIComponent(filters.channelName.join(','))}`;
         }
+        if (filters.uploadedBy && filters.uploadedBy.length > 0) {
+            params += `&uploadedBy=${encodeURIComponent(filters.uploadedBy.join(','))}`;
+        }
         return params;
     }
 

@@ -89,12 +89,12 @@
                     </el-tooltip>
                 </div>
                 <div class="action-bar-right">
-                    <el-tooltip :disabled="disableTooltip" :content="$t('dashboard.moveFile')" placement="top" :show-after="1000">
+                    <el-tooltip v-if="canManage" :disabled="disableTooltip" :content="$t('dashboard.moveFile')" placement="top" :show-after="1000">
                         <button class="action-btn" @click.stop="$emit('move')">
                             <font-awesome-icon icon="file-export"></font-awesome-icon>
                         </button>
                     </el-tooltip>
-                    <el-tooltip :disabled="disableTooltip" :content="$t('dashboard.delete')" placement="top" :show-after="1000">
+                    <el-tooltip v-if="canDelete" :disabled="disableTooltip" :content="$t('dashboard.delete')" placement="top" :show-after="1000">
                         <button class="action-btn action-btn-danger" @click.stop="$emit('delete')">
                             <font-awesome-icon icon="trash-alt"></font-awesome-icon>
                         </button>
@@ -116,6 +116,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'FileCard',
     props: {
@@ -134,6 +136,13 @@ export default {
         }
     },
     computed: {
+        ...mapGetters(['hasPermission']),
+        canDelete() {
+            return this.hasPermission('delete');
+        },
+        canManage() {
+            return this.hasPermission('manage');
+        },
         channelTag() {
             return this.item.channelTag || '';
         },

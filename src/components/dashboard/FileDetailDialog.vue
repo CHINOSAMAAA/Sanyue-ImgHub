@@ -4,22 +4,22 @@
             <el-button type="primary" @click="$emit('download')" round size="small" class="detail-action" v-if="!isEditing">
                 <font-awesome-icon icon="download" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.download') }}
             </el-button>
-            <el-button type="primary" @click="$emit('tagManagement')" round size="small" class="detail-action" v-if="!isEditing">
+            <el-button type="primary" @click="$emit('tagManagement')" round size="small" class="detail-action" v-if="!isEditing && canManage">
                 <font-awesome-icon icon="tags" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.tags') }}
             </el-button>
-            <el-button type="primary" @click="$emit('block')" round size="small" class="detail-action" v-if="!isEditing">
+            <el-button type="primary" @click="$emit('block')" round size="small" class="detail-action" v-if="!isEditing && isAdmin">
                 <font-awesome-icon icon="ban" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.blacklist') }}
             </el-button>
-            <el-button type="primary" @click="$emit('white')" round size="small" class="detail-action" v-if="!isEditing">
+            <el-button type="primary" @click="$emit('white')" round size="small" class="detail-action" v-if="!isEditing && isAdmin">
                 <font-awesome-icon icon="shield-alt" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.whitelist') }}
             </el-button>
-            <el-button type="danger" @click="$emit('delete')" round size="small" class="detail-action" v-if="!isEditing">
+            <el-button type="danger" @click="$emit('delete')" round size="small" class="detail-action" v-if="!isEditing && canDelete">
                 <font-awesome-icon icon="trash-alt" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.deleteBtn') }}
             </el-button>
-            <el-button type="warning" @click="startEdit()" round size="small" class="detail-action" v-if="!isEditing">
+            <el-button type="warning" @click="startEdit()" round size="small" class="detail-action" v-if="!isEditing && canManage">
                 <font-awesome-icon icon="edit" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.edit') }}
             </el-button>
-            <el-button type="info" @click="openRenameDialog()" round size="small" class="detail-action" v-if="!isEditing">
+            <el-button type="info" @click="openRenameDialog()" round size="small" class="detail-action" v-if="!isEditing && canManage">
                 <font-awesome-icon icon="i-cursor" style="margin-right: 3px;"></font-awesome-icon> {{ $t('fileDetail.rename') }}
             </el-button>
             <el-button type="success" @click="saveMetadata()" round size="small" class="detail-action" v-if="isEditing" :loading="editSaving">
@@ -88,6 +88,7 @@
                 <span v-else style="color: var(--el-text-color-secondary);">{{ $t('fileDetail.noDimensions') }}</span>
             </el-descriptions-item>
             <el-descriptions-item :label="$t('fileDetail.uploadTimeLabel')">{{ uploadTime }}</el-descriptions-item>
+            <el-descriptions-item v-if="file?.metadata?.UploadedBy" :label="$t('fileDetail.uploader')">{{ file.metadata.UploadedBy }}</el-descriptions-item>
             <el-descriptions-item :label="$t('fileDetail.channelTypeAndName')">
                 <el-tag size="small" type="info" style="margin-right: 6px;">{{ file?.metadata?.Channel || $t('fileDetail.unknown') }}</el-tag>
                 <span>{{ file?.metadata?.ChannelName || '-' }}</span>
@@ -141,7 +142,10 @@ export default {
         modelValue: { type: Boolean, default: false },
         file: { type: Object, default: null },
         fileLink: { type: String, default: '' },
-        urls: { type: Object, default: () => ({ originUrl: '', mdUrl: '', htmlUrl: '', bbUrl: '', tgId: '', S3Location: '', S3CdnFileUrl: '' }) }
+        urls: { type: Object, default: () => ({ originUrl: '', mdUrl: '', htmlUrl: '', bbUrl: '', tgId: '', S3Location: '', S3CdnFileUrl: '' }) },
+        isAdmin: { type: Boolean, default: true },
+        canDelete: { type: Boolean, default: true },
+        canManage: { type: Boolean, default: true }
     },
     emits: ['update:modelValue', 'download', 'tagManagement', 'block', 'white', 'delete', 'metadataUpdated', 'fileRenamed'],
     watch: {

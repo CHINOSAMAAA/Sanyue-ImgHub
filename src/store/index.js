@@ -11,6 +11,17 @@ export default createStore({
     adminAccessStarted: false,
     adminAuthWarningVisible: false,
     userLoggedIn: false,
+    authSession: {
+      valid: false,
+      authType: null,
+      username: '',
+      displayName: '',
+      userId: '',
+      permissions: [],
+      accountAuth: false,
+      adminRequired: true,
+      userRequired: false,
+    },
     uploadMethod: 'default',
     uploadCopyUrlForm: '',
     compressConfig: {
@@ -43,6 +54,17 @@ export default createStore({
     bingWallPapers: state => state.bingWallPapers,
     adminLoggedIn: state => state.adminLoggedIn,
     userLoggedIn: state => state.userLoggedIn,
+    authSession: state => state.authSession,
+    accountAuth: state => !!state.authSession.accountAuth,
+    isAdminView: (state) => {
+      if (state.authSession.authType === 'admin') return true;
+      if (state.authSession.authType === 'user') return false;
+      return !state.authSession.adminRequired;
+    },
+    hasPermission: (state, getters) => (permission) => {
+      if (getters.isAdminView) return true;
+      return Array.isArray(state.authSession.permissions) && state.authSession.permissions.includes(permission);
+    },
     storeUploadMethod: state => state.uploadMethod,
     uploadCopyUrlForm: state => state.uploadCopyUrlForm,
     compressConfig: state => state.compressConfig,
@@ -82,6 +104,32 @@ export default createStore({
     },
     setUserLoggedIn(state, loggedIn) {
       state.userLoggedIn = loggedIn;
+    },
+    setAuthSession(state, data = {}) {
+      state.authSession = {
+        valid: !!data.valid,
+        authType: data.authType || null,
+        username: data.username || '',
+        displayName: data.displayName || data.username || '',
+        userId: data.userId || '',
+        permissions: Array.isArray(data.permissions) ? data.permissions : [],
+        accountAuth: !!data.accountAuth,
+        adminRequired: data.adminRequired !== false,
+        userRequired: !!data.userRequired,
+      };
+    },
+    clearAuthSession(state) {
+      state.authSession = {
+        valid: false,
+        authType: null,
+        username: '',
+        displayName: '',
+        userId: '',
+        permissions: [],
+        accountAuth: state.authSession.accountAuth,
+        adminRequired: state.authSession.adminRequired,
+        userRequired: state.authSession.userRequired,
+      };
     },
     setUploadMethod(state, uploadMethod) {
       state.uploadMethod = uploadMethod;
